@@ -1,0 +1,64 @@
+ {% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Liste des Étudiants
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-sm-3">
+            <h5 class="text-primary">Spécialités</h5>
+            <ul class="list-group list-unstyled">
+                {% for cat in specialities %}
+                <li class="list-group-item">
+                    <a href="{% url 'student_list_filter' cat.name %}" class="badge badge-secondary">
+                        {{ cat.name|capfirst }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            <h1 class="mb-4 text-primary">Liste des Étudiants {% if speciality %} - {{ speciality.name }}{% endif %}</h1>
+            <div class="row">
+                {% for student in students %}
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        {% if student.student_photo %}
+                        <img src="{{ student.student_photo.photo.url }}" class="card-img-top" alt="{{ student.first_name }} {{ student.last_name }}">
+                        {% else %}
+                        <img src="{% static 'img/student.png' %}" class="card-img-top" alt="{{ student.first_name }} {{ student.last_name }}">
+                        {% endif %}
+                        <div class="card-body">
+                          <h5 class="card-title"><a href="{% url 'student_detail' student.pk %}" class="text-primary">{{ student.first_name }} {{ student.last_name }}</a></h5>
+
+                            <p class="card-text">
+        <strong>Filière :</strong> <span class="badge badge-warning">{{ student.related_subject.name }}</span>
+    </p>
+    <p class="card-text">
+        <strong>École :</strong> <span class="badge badge-info">{{ student.school.name }}</span>
+    </p>
+    <p class="card-text">
+        <strong>Description :</strong><br>
+        <span class="text-muted">   {{ student.student_description.description|slice:":70" }}...</span>
+        <a href="{% url 'student_detail' student.pk %}" class="text-info">[En savoir plus ...]</a>
+    </p>
+    {% if student.specialty %}
+    <a href="{% url 'student_list_filter' student.specialty.name %}" class="badge badge-primary">{{ student.specialty.name|capfirst }}</a>
+    {% else %}
+    <span class="badge badge-secondary">Aucune spécialité</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-md-12">
+                    <p class="text-center">Aucun étudiant n'est enregistré.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

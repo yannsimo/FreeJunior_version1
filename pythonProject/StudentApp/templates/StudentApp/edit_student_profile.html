@@ -1,0 +1,16 @@
+ {% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Modifier le Profil
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Modifier le Profil de {{ student.first_name }} {{ student.last_name }}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Sauvegarder</button>
+    </form>
+</div>
+{% endblock %}
