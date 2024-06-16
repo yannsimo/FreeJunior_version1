@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 
 from django.http import HttpRequest
@@ -17,9 +18,11 @@ def register_student(request):
     if request.method == 'POST':
         form = StudentRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            print(form.instance)
-            return redirect('confirmationInscription')
+            try:
+                form.save()
+                return redirect('confirmationInscription')
+            except  ValidationError as e:
+                 form.add_error('description', e.message)
     else:
         form = StudentRegistrationForm()
 

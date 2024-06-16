@@ -20,7 +20,7 @@ Liste des Étudiants
             </ul>
         </div>
         <div class="col-sm-9">
-            <h1 class="mb-4 text-primary">Liste des Étudiants {% if speciality %} - {{ speciality.name }}{% endif %}</h1>
+            <h1 class="mb-4 text-primary">Liste des Étudiants {% if speciality %}  {{ speciality.name }}{% endif %}</h1>
             <div class="row">
                 {% for student in students %}
                 <div class="col-md-4">

@@ -1,7 +1,8 @@
+from unittest import TestCase
 from django import forms
-
+from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
-
 from .models import Student, School, Specialty, Program, Subject, Description, Photo, CV
 
 SPECIALTY_CHOICES = [
@@ -27,14 +28,14 @@ SPECIALTY_CHOICES = [
     ('blockchain', 'Blockchain'),
     ('recherche_et_developpement', 'Recherche et Développement'),
     ('iot', 'Internet des Objets (IoT)'),
-    ('ux_ui', 'UX/UI Design'),
+    ('ux_ui_Design', 'UX/UI Design'),
     ('big_data', 'Big Data'),
     ('realite_virtuelle', 'Réalité Virtuelle / Réalité Augmentée'),
     ('robotique', 'Robotique'),
     ('ingenierie_logicielle', 'Ingénierie Logicielle'),
     ('systemes_embarques', 'Systèmes Embarqués'),
     ('automatisation', 'Automatisation'),
-    ('conception_bdd', 'Conception de Bases de Données'),
+    ('conception_base_de_donnees', 'Conception de Bases de Données'),
     ('administration_reseaux', 'Administration Réseaux'),
     ('virtualisation', 'Virtualisation'),
     ('ingenieur_systeme', 'Ingénieur Système'),
@@ -177,7 +178,23 @@ class StudentRegistrationForm(forms.ModelForm):
     last_name = forms.CharField(label="Nom de famille", max_length=255, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
     study_level = forms.ChoiceField(label="Niveau d’études", choices=Student.STUDY_LEVEL_CHOICES, required=True, widget=forms.Select(attrs={'class': 'form-control'}))
     hourly_rate = forms.DecimalField(label="Taux horaire (€/heure)", required=False, widget=forms.NumberInput(attrs={'class': 'form-control'}))
-    description = forms.CharField(label="Brève description de vous-même", required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Décrivez-vous brièvement'}))
+    description = forms.CharField(
+        label="Brève description de vous-même",
+        required=True,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'placeholder': (
+                "Décrivez-vous brièvement. Voici quelques points à inclure pour atteindre les 300 mots : \n"
+                "- Qui êtes-vous et quel est votre parcours académique ? \n"
+                "- Quelles sont les stages que vous avez effectués ? \n"
+                "- Sur quels projets avez-vous travaillé ? \n"
+                "- Quelles compétences techniques maîtrisez-vous ? \n"
+                "- Quelles sont vos compétences personnelles et vos forces ? \n"
+                "- Quels sont vos objectifs professionnels ? \n"
+                "- Quelles sont vos réalisations notables ? \n"
+            )
+        })
+    )
     photo = forms.ImageField(label="Photo de profil", required=False, widget=forms.FileInput(attrs={'class': 'form-control-file'}))
     cv = forms.FileField(label="Curriculum Vitae (CV)", required=False, widget=forms.FileInput(attrs={'class': 'form-control-file'}))
     password1 = forms.CharField(label="Mot de passe", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
@@ -185,7 +202,7 @@ class StudentRegistrationForm(forms.ModelForm):
 
     school_name = forms.CharField(label="Nom de l'école où vous étudiez", max_length=255, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Entrez le nom de votre école'}))
     specialty_name = forms.ChoiceField(
-        label="Spécialité que vous souhaitez exercer",
+        label="Spécialité que vous souhaitez exercer sur ce site ",
         choices=SPECIALTY_CHOICES,
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'})
@@ -212,6 +229,13 @@ class StudentRegistrationForm(forms.ModelForm):
             'study_level': forms.Select(attrs={'class': 'form-control'}),
             'hourly_rate': forms.NumberInput(attrs={'class': 'form-control'})
         }
+
+    def clean_description(self):
+        description_text = self.cleaned_data.get('description')
+        word_count = len(description_text.split())
+        if word_count < 100:
+            raise ValidationError('La description doit contenir au moins 100 mots.')
+        return description_text
 
     def save(self, commit=True):
         school_name = self.cleaned_data.get('school_name')
@@ -243,3 +267,94 @@ class StudentRegistrationForm(forms.ModelForm):
                 if cv_file:
                     CV.objects.create(student=student, cv=cv_file)
         return student
+
+class StudentRegistrationFormTests(TestCase):
+
+    def setUp(self):
+        self.school = School.objects.create(name="Test School")
+        self.specialty = Specialty.objects.create(name="Développement Web")
+        self.program = Program.objects.create(name="Test Program", school=self.school)
+        self.subject = Subject.objects.create(name="Test Subject", program=self.program)
+        self.valid_data = {
+            'email': 'teststudent@example.com',
+            'first_name': 'John',
+            'last_name': 'Doe',
+            'study_level': 'Bac+3',
+            'hourly_rate': '20.00',
+            'description': 'Je suis un étudiant en développement web avec une passion pour les nouvelles technologies et l\'apprentissage continu. J\'ai effectué plusieurs stages dans des entreprises de renom, travaillant sur des projets variés allant de la conception de sites web à la gestion de bases de données. Je maîtrise HTML, CSS, JavaScript, et divers frameworks tels que React et Angular. Mes compétences en communication et en gestion de projet m\'ont permis de collaborer efficacement avec des équipes pluridisciplinaires. Mon objectif est de devenir un développeur full-stack compétent et de contribuer à des projets innovants. Mes réalisations incluent la création d\'applications web interactives et la participation à des hackathons où j\'ai gagné des prix. Je suis motivé, déterminé, et toujours prêt à relever de nouveaux défis.',
+            'photo': SimpleUploadedFile(name='test_image.jpg', content=b'', content_type='image/jpeg'),
+            'cv': SimpleUploadedFile(name='test_cv.pdf', content=b'', content_type='application/pdf'),
+            'password1': 'testpassword123',
+            'password2': 'testpassword123',
+            'school_name': self.school.name,
+            'specialty_name': self.specialty.name,
+            'program_name': self.program.name,
+            'subject_name': self.subject.name,
+        }
+
+    def test_student_registration_form_valid(self):
+        form = StudentRegistrationForm(data=self.valid_data)
+        self.assertTrue(form.is_valid())
+        student = form.save()
+        self.assertEqual(Student.objects.count(), 1)
+        self.assertEqual(student.first_name, 'John')
+        self.assertEqual(student.last_name, 'Doe')
+        self.assertEqual(student.email, 'teststudent@example.com')
+
+    def test_student_registration_form_invalid_password_mismatch(self):
+        self.valid_data['password2'] = 'differentpassword'
+        form = StudentRegistrationForm(data=self.valid_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('password2', form.errors)
+
+    def test_student_registration_form_invalid_short_description(self):
+        self.valid_data['description'] = 'Trop court.'
+        form = StudentRegistrationForm(data=self.valid_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('description', form.errors)
+
+    def test_student_registration_form_save_description(self):
+        form = StudentRegistrationForm(data=self.valid_data)
+        self.assertTrue(form.is_valid())
+        student = form.save()
+        self.assertEqual(Description.objects.count(), 1)
+        self.assertEqual(student.student_description.description, self.valid_data['description'])
+
+    def test_student_registration_form_save_photo(self):
+        form = StudentRegistrationForm(data=self.valid_data, files={'photo': self.valid_data['photo']})
+        self.assertTrue(form.is_valid())
+        student = form.save()
+        self.assertEqual(Photo.objects.count(), 1)
+        self.assertEqual(student.student_photo.photo.name, 'student_photos/test_image.jpg')
+
+    def test_student_registration_form_save_cv(self):
+        form = StudentRegistrationForm(data=self.valid_data, files={'cv': self.valid_data['cv']})
+        self.assertTrue(form.is_valid())
+        student = form.save()
+        self.assertEqual(CV.objects.count(), 1)
+        self.assertEqual(student.student_cv.cv.name, 'student_cvs/test_cv.pdf')
+
+    def test_student_update(self):
+        form = StudentRegistrationForm(data=self.valid_data)
+        self.assertTrue(form.is_valid())
+        student = form.save()
+
+        updated_data = self.valid_data.copy()
+        updated_data['first_name'] = 'Jane'
+        updated_data['description'] = 'Je suis un étudiant en développement web avec une passion renouvelée pour les nouvelles technologies et l\'apprentissage continu. J\'ai effectué plusieurs stages dans des entreprises de renom, travaillant sur des projets variés allant de la conception de sites web à la gestion de bases de données. Je maîtrise HTML, CSS, JavaScript, et divers frameworks tels que React et Angular. Mes compétences en communication et en gestion de projet m\'ont permis de collaborer efficacement avec des équipes pluridisciplinaires. Mon objectif est de devenir un développeur full-stack compétent et de contribuer à des projets innovants. Mes réalisations incluent la création d\'applications web interactives et la participation à des hackathons où j\'ai gagné des prix. Je suis motivé, déterminé, et toujours prêt à relever de nouveaux défis.'
+
+        form = StudentRegistrationForm(data=updated_data, instance=student)
+        self.assertTrue(form.is_valid())
+        updated_student = form.save()
+        self.assertEqual(updated_student.first_name, 'Jane')
+        self.assertEqual(updated_student.student_description.description, updated_data['description'])
+
+    def test_student_deletion(self):
+        form = StudentRegistrationForm(data=self.valid_data)
+        self.assertTrue(form.is_valid())
+        student = form.save()
+
+        student_id = student.id
+        student.delete()
+        with self.assertRaises(Student.DoesNotExist):
+            Student.objects.get(id=student_id)

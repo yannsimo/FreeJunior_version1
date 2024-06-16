@@ -1,6 +1,9 @@
+from unittest import TestCase
+
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, Permission
-from django.template.defaultfilters import slugify
+from django.template.defaultfilters import slugify, date
+
 
 class Company(models.Model):
     name = models.CharField(max_length=255)
@@ -103,3 +106,4 @@ class Comment(models.Model):
 
     def __str__(self):
         return '{} - {} (status={})'.format(self.company_name, self.text[:20], self.status)
+
