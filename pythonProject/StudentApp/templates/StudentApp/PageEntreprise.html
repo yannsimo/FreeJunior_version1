@@ -292,7 +292,7 @@ p {
               <h1>Faites des économies tout en donnant de l'expérience aux étudiants</h1>
               <p><strong>45% des étudiants en France travaillent en parallèle de leurs études.</strong> Recruter un junior coûte en moyenne <strong>10 000 €</strong> à une entreprise. Avec FreeJunior, accédez à des talents prometteurs à des tarifs compétitifs et réduisez significativement vos coûts.</p>
             <a href="{% url 'student_list' %}" class="btn btn-primary btn-lg mr-2 mt-2">Voir les étudiants</a>
-            <a href="{% url 'company_form' %}" class="btn btn-danger btn-lg mt-2">Postez une mission</a>
+            <a href="{% url 'submit_mission' %}" class="btn btn-danger btn-lg mt-2">Postez une mission</a>
         </div>
         <div class="col-md-6">
             <!-- Vous pouvez ajouter une image ou un autre contenu ici -->
@@ -354,19 +354,21 @@ p {
     </div>
     <div class="divider"></div>
 </section>
-
-<section id="Comment">
+ <section id="Comment">
+     <div class="text-center mt-4">
+            <p>Vous pouvez poster des missions en mentionnant  votre budget maximum ou les parts d'entreprise que vous souhaitez offrir, et les étudiants y postuleront.</p>
+            <a href="{% url 'submit_mission' %}" class="btn btn-danger btn-lg mt-2">Je poste une mission maintenant</a>
+        </div>
     <div class="container">
         <div class="heading">
             <h2>Comment ça marche ?</h2>
         </div>
-        <ul class="timeline">
+        <ul class="timeline mt-4">
             <li>
                 <div class="timeline-badge"><i class="fas fa-users"></i></div>
-                <div class="timeline-panel-container"></div>
                 <div class="timeline-panel">
                     <div class="timeline-heading">
-                        <h3><a href="{% url 'student_list' %}">Explorer les profils étudiants</a></h3>
+                        <h3><a href="{% url 'student_list' %}" class="text-primary">Explorer les profils étudiants</a></h3>
                         <p class="text-muted">
                             <i class="far fa-clock"></i> Étape 1
                         </p>
@@ -378,7 +380,6 @@ p {
             </li>
             <li>
                 <div class="timeline-badge"><i class="fas fa-envelope"></i></div>
-                <div class="timeline-panel-container"></div>
                 <div class="timeline-panel">
                     <div class="timeline-heading">
                         <h3>Prendre contact</h3>
@@ -393,7 +394,6 @@ p {
             </li>
             <li>
                 <div class="timeline-badge"><i class="fas fa-rocket"></i></div>
-                <div class="timeline-panel-container"></div>
                 <div class="timeline-panel">
                     <div class="timeline-heading">
                         <h3>Lancer la mission</h3>
@@ -408,7 +408,6 @@ p {
             </li>
             <li>
                 <div class="timeline-badge"><i class="fas fa-star"></i></div>
-                <div class="timeline-panel-container"></div>
                 <div class="timeline-panel">
                     <div class="timeline-heading">
                         <h3>Donner de la visibilité</h3>
@@ -429,7 +428,7 @@ p {
         <div class="divider"></div>
         <p class="lead text-center mt-4">Vous avez besoin de renseignements, ou aucun profil ne correspond à vos critères pour la mission ? Remplissez le formulaire ci-dessous et nous vous recontacterons.</p>
         <div class="text-center">
-            <a href="{% url 'company_form' %}" class="btn btn-primary btn-lg mr-2 mt-4">Contatez-nous</a>
+            <a href="{% url 'contact' %}" class="btn btn-primary btn-lg mr-2 mt-4">Contatez-nous</a>
         </div>
     </div>
 </section>

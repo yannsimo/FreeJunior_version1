@@ -14,7 +14,18 @@ Etudiant
 
 .btn-secondary:hover {
     background-color: #5a6268;
+    transform: translateY(-2px);
 }
+.btn-info {
+        background-color: #17a2b8;
+        border: none;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+        transform: translateY(-2px);
+    }
 
 h1 {
     color: #007bff; /* Couleur du texte principale */
@@ -287,11 +298,13 @@ p {
  </style>
 <div class="container mt-4">
     <div class="row">
-        <div class="col-md-6">
-              <h1>FreeJunior 1ére plateforme de freelance pour étudiant </h1>
-              <p>Nous croyons que les étudiants d'aujourd'hui sont les leaders de demain. Rejoignez notre plateforme pour accéder à des opportunités de missions freelances qui vous permettront de développer vos compétences et d'acquérir une expérience précieuse dans votre domaine.</p>
-
-            <a href="{% url 'student_form' %}" class="btn btn-secondary btn-lg mt-2">Inscrivez-vous</a>
+         <div class="col-md-6">
+            <h1 class="text-primary">FreeJunior - 1ère plateforme de freelance pour étudiant</h1>
+            <p>Nous croyons que les étudiants d'aujourd'hui sont les leaders de demain. Rejoignez notre plateforme pour accéder à des opportunités de missions freelances qui vous permettront de développer vos compétences et d'acquérir une expérience précieuse dans votre domaine.</p>
+            <div class="btn-group mt-2" role="group">
+                <a href="{% url 'student_form' %}" class="btn btn-secondary btn-lg">Inscrivez-vous</a>
+                <a href="{% url 'mission_list' %}" class="btn btn-info btn-lg ml-2">Voir les missions</a>
+            </div>
         </div>
         <div class="col-md-6">
             <!-- Vous pouvez ajouter une image ou un autre contenu ici -->
@@ -353,6 +366,10 @@ p {
     <div class="divider"></div>
 </section>
 <section id="Comment">
+     <div class="text-center mt-4">
+            <p>Vous pouvez postulez directement pour des missions et  être payés en cash ou en part d'entreprise </p>
+            <a href="{% url 'mission_list' %}" class="btn btn-danger btn-lg mt-2">Je postule  maintenant </a>
+     </div>
     <div class="container">
         <div class="heading">
             <h2>Comment ça marche ?</h2>

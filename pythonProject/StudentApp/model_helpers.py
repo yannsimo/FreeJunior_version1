@@ -1,8 +1,9 @@
 from typing import List
 
-from StudentApp.models import Student, Specialty
+from StudentApp.models import Student, Specialty,Mission
 
 student_speciality_all = Specialty(name='')
+mission_speciality_all = Specialty(name='')
 
 def get_speciality_Student(speciality_name):
     student = Student.objects.all()
@@ -22,3 +23,19 @@ def get_speciality_Student(speciality_name):
 def get_speciality():
     specialities = list(Specialty.objects.all().order_by('name'))
     return specialities
+
+
+def get_speciality_Mission(speciality_name):
+    mission = Mission.objects.all()
+    if speciality_name == mission_speciality_all.slug():
+        specialty_std = mission_speciality_all
+    else:
+        try:
+            specialty_std = Specialty.objects.get(name__iexact=speciality_name)
+            mission = mission.filter(specialty=specialty_std)
+        except Specialty.DoesNotExist:
+            specialty_std = Specialty(name=speciality_name)
+            mission = Mission.objects.none()
+
+    mission = mission.order_by('date')
+    return specialty_std, mission
